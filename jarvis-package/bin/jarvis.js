@@ -9,7 +9,15 @@ const packageJson = require("../package.json");
 const args = process.argv.slice(2);
 const configDir = path.join(os.homedir(), ".beton-jarvis");
 const configFile = path.join(configDir, "config.json");
-const electronBinary = path.join(__dirname, "..", "node_modules", ".bin", process.platform === "win32" ? "electron.cmd" : "electron");
+const electronShim = path.join(__dirname, "..", "node_modules", ".bin", process.platform === "win32" ? "electron.cmd" : "electron");
+function resolveElectronBinary() {
+  try {
+    const resolved = require("electron");
+    if (typeof resolved === "string" && fs.existsSync(resolved)) return resolved;
+  } catch {}
+  return electronShim;
+}
+const electronBinary = resolveElectronBinary();
 const mainFile = path.join(__dirname, "..", "main.js");
 const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
 
@@ -101,7 +109,7 @@ function launch() {
     process.exitCode = 1;
     return;
   }
-  const child = spawn(electronBinary, [mainFile, ...args], { stdio: "inherit", detached: false });
+  const child = spawn(electronBinary, [mainFile, ...args], { stdio: "inherit", detached: false, windowsHide: false });
   child.on("error", (error) => {
     console.error(`jarvis: ${error.message}`);
     process.exitCode = 1;
