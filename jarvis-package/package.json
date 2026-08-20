@@ -4,18 +4,24 @@
   "description": "A local-first JARVIS-style desktop voice assistant powered by Beton CLI and ElevenLabs.",
   "license": "MIT",
   "author": "Ayush Bhattacharya <info.cometlabs@gmail.com>",
-  "homepage": "https://github.com/itsjustayush/beton-cli",
+  "homepage": "https://github.com/itsjustayush/vocoder",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/itsjustayush/beton-cli.git",
+    "url": "git+https://github.com/itsjustayush/vocoder.git",
     "directory": "jarvis-package"
   },
   "bugs": {
-    "url": "https://github.com/itsjustayush/beton-cli/issues"
+    "url": "https://github.com/itsjustayush/vocoder/issues"
   },
   "keywords": ["jarvis", "friday", "desktop-assistant", "voice-assistant", "electron", "elevenlabs", "beton"],
   "engines": {
     "node": ">=18"
+  },
+  "main": "backend/index.js",
+  "exports": {
+    ".": "./backend/index.js",
+    "./backend": "./backend/index.js",
+    "./package.json": "./package.json"
   },
   "bin": {
     "jarvis": "bin/jarvis.js"
@@ -25,6 +31,7 @@
     "app",
     "main.js",
     "preload.js",
+    "backend",
     "lib",
     "scripts",
     "src",
@@ -35,6 +42,7 @@
     "build": "node scripts/build.js",
     "start": "node bin/jarvis.js",
     "doctor": "node bin/jarvis.js doctor",
+    "test": "node scripts/test-backend.js",
     "setup": "node bin/jarvis.js setup",
     "update": "node bin/jarvis.js update",
     "pack": "npm run build && npm pack",

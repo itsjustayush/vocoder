@@ -2,7 +2,7 @@
 
 `beton-jarvis` is a local-first desktop voice assistant package. It opens a small always-on-top orb, listens for “Wake up Jarvis” or a two-clap pattern, connects to an ElevenLabs Conversational AI agent for realtime speech, and routes local computer actions through Beton CLI whenever Beton is available.
 
-The package is designed to be updated through npm. The source lives in the `jarvis-package/` directory of the Beton CLI repository, while the published package is named `beton-jarvis`.
+The package is designed to be updated through npm. The source lives in the `jarvis-package/` directory of the vocoder repository, while the published package is named `beton-jarvis`.
 
 ## Requirements
 
@@ -78,6 +78,22 @@ npm start
 ```
 
 The build bundles `src/renderer.js` into `app/renderer.js`. The generated bundle is included in the npm package, so an npm user does not need the repository or a separate build step.
+
+## Backend modules
+
+The installable backend lives in `backend/` and is imported by the Electron main process. `config.js` manages the owner-only local config file, `elevenlabs.js` retrieves signed realtime session URLs, `beton.js` maps supported natural-language requests to Beton subcommands, `risk.js` classifies confirmation-sensitive actions, `executor.js` runs Beton-first actions or the guarded system shell, and `diagnostics.js` powers `jarvis doctor`. These modules ship in the npm tarball and can be required by local integrations through `require("beton-jarvis/backend")` after installation.
+
+To verify the package from a clean install path:
+
+```bash
+mkdir jarvis-clean-test
+cd jarvis-clean-test
+npm init --yes
+npm install --global beton-jarvis
+jarvis doctor
+```
+
+For a repository-only tarball test, run `npm pack` inside `jarvis-package`, then install the generated `.tgz` into the clean test directory with `npm install --global /absolute/path/to/beton-jarvis-0.1.0.tgz`.
 
 ## Publishing a release
 

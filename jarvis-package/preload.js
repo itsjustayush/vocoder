@@ -4,6 +4,7 @@ contextBridge.exposeInMainWorld("jarvis", {
   getConfig: () => ipcRenderer.invoke("jarvis:get-config"),
   saveConfig: (patch) => ipcRenderer.invoke("jarvis:save-config", patch),
   getSignedUrl: () => ipcRenderer.invoke("jarvis:get-signed-url"),
+  getDiagnostics: () => ipcRenderer.invoke("jarvis:get-diagnostics"),
   runAction: (payload) => ipcRenderer.invoke("jarvis:run-action", payload),
   installBeton: () => ipcRenderer.invoke("jarvis:install-beton"),
   openExternal: (url) => ipcRenderer.invoke("jarvis:open-external", url),
