@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://api.elevenlabs.io https://*.elevenlabs.io; connect-src 'self' https://api.elevenlabs.io wss://*.elevenlabs.io; style-src 'self' 'unsafe-inline'; script-src 'self' blob: 'unsafe-eval'; media-src 'self' blob:;" />
+    <title>BETON JARVIS</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="app" class="app">
+      <div class="window-grip" aria-hidden="true"></div>
+      <header class="topbar">
+        <div class="brand"><span class="brand-mark">✦</span><span>BETON / JARVIS</span><span class="muted">LOCAL NODE 01</span></div>
+        <div class="topbar-actions"><span id="connectionLabel" class="connection-label"><i></i> STANDBY</span><button id="minimizeButton" class="icon-button" title="Hide orb">—</button></div>
+      </header>
+
+      <main>
+        <section class="hero">
+          <div class="hero-kicker">PERSONAL COMPUTER INTELLIGENCE</div>
+          <h1>How can I<br /><em>help?</em></h1>
+          <p class="hero-copy">A local voice layer for your machine. Wake it with <strong>“Wake up Jarvis”</strong> or two quick claps.</p>
+        </section>
+
+        <section class="orb-stage" aria-label="JARVIS voice status">
+          <div class="orb-halo halo-one"></div><div class="orb-halo halo-two"></div><div class="orb"><div class="orb-core"><span class="orb-glyph">✦</span></div><div class="orb-ring ring-one"></div><div class="orb-ring ring-two"></div></div>
+          <div id="orbState" class="orb-state">LISTENING FOR WAKE</div>
+          <div id="orbHint" class="orb-hint">say “wake up jarvis”</div>
+        </section>
+
+        <section class="telemetry-grid">
+          <div class="telemetry-card"><span>VOICE LINK</span><strong id="voiceLink">LOCAL WAKE</strong><i id="voiceBar"></i></div>
+          <div class="telemetry-card"><span>BETON</span><strong id="betonLink">CHECKING</strong><i id="betonBar"></i></div>
+          <div class="telemetry-card"><span>MODE</span><strong id="modeLink">READY</strong><i id="modeBar"></i></div>
+        </section>
+
+        <section class="chat-card">
+          <div class="chat-heading"><span>ACTIVITY STREAM</span><span class="muted">LOCAL ONLY</span></div>
+          <div id="messages" class="messages"><div class="message system-message"><span class="message-label">SYSTEM</span><p>JARVIS is standing by. Your voice stays on this machine until you start an ElevenLabs session.</p></div></div>
+          <div class="command-row"><input id="commandInput" autocomplete="off" placeholder="Type a command or ask JARVIS…" /><button id="sendButton">SEND <span>↗</span></button></div>
+        </section>
+
+        <section id="confirmationCard" class="confirmation-card hidden"><div><span class="warning-label">CONFIRM ACTION</span><p id="confirmationText"></p></div><div class="confirmation-actions"><button id="cancelAction" class="secondary-button">CANCEL</button><button id="confirmAction" class="danger-button">RUN IT</button></div></section>
+
+        <section class="quick-actions"><button data-command="open terminal" class="quick-button">OPEN TERMINAL</button><button data-command="show system status" class="quick-button">SYSTEM STATUS</button><button data-command="take a screenshot" class="quick-button">SCREENSHOT</button><button id="muteButton" class="quick-button accent-button">MUTE</button></section>
+      </main>
+
+      <footer class="footer"><span>BETON-FIRST EXECUTION</span><span>DESTRUCTIVE ACTIONS REQUIRE CONFIRMATION</span><button id="settingsButton" class="text-button">SETUP</button></footer>
+    </div>
+    <script src="renderer.js"></script>
+  </body>
+</html>

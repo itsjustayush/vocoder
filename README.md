@@ -27,3 +27,17 @@ Open the printed local URL in a modern Chromium-based browser. Press **Start Ses
 `client/src/App.tsx` owns the instrument state, camera preview, hand-landmark loop, gesture mapping, and Web Audio graph. `public/vocoder-processor.js` contains the real-time AudioWorklet: it uses a compact eight-band filterbank, smoothed band envelopes, harmonic carriers, gate/mix/pitch/brightness parameters, and a soft saturation stage. `client/src/styles.css` supplies the dark studio visual system, responsive stage layout, gesture telemetry, waveform rack, and microphone-permission empty state.
 
 The first version intentionally keeps audio local and does not upload camera or microphone data. The app requires HTTPS or localhost for device permissions, plus a browser that supports `AudioWorklet` and WebGL-backed MediaPipe Tasks Vision.
+
+## JARVIS desktop assistant
+
+The JARVIS work now lives in `jarvis-package/` in this repository. It is an npm-installable Electron orb with wake-word and two-clap activation, ElevenLabs realtime voice wiring, Beton-first local actions, and confirmation gates for destructive commands.
+
+```bash
+cd jarvis-package
+npm install
+npm run build
+npm run doctor
+npm start
+```
+
+See [`jarvis-package/README.md`](./jarvis-package/README.md) for setup, updates, versioning, and npm publishing.
