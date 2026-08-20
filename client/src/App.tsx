@@ -196,20 +196,46 @@ export default function App() {
     if (mode === "running" || mode === "loading") return;
     setMode("loading");
     setError("");
+    let step = "checking browser support";
+    let stream: MediaStream | null = null;
+    let context: AudioContext | null = null;
+
     try {
-      const [vision, stream] = await Promise.all([
-        FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm"),
-        navigator.mediaDevices.getUserMedia({
-          audio: { echoCancellation: true, autoGainControl: true, noiseSuppression: true },
-          video: { width: 1280, height: 720, facingMode: "user" },
-        }),
-      ]);
-      const landmarker = await HandLandmarker.createFromOptions(vision, {
-        baseOptions: { modelAssetPath: MODEL_URL, delegate: "GPU" },
-        runningMode: "VIDEO",
-        numHands: 1,
+      if (!navigator.mediaDevices?.getUserMedia) {
+        throw new Error("This browser does not expose camera and microphone access here. Use HTTPS or localhost.");
+      }
+
+      step = "loading the hand-tracking runtime";
+      const vision = await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.35/wasm");
+
+      step = "requesting camera and microphone";
+      stream = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: true, autoGainControl: true, noiseSuppression: true },
+        video: { width: 1280, height: 720, facingMode: "user" },
       });
-      const context = new AudioContext();
+
+      step = "loading the hand model";
+      let landmarker: HandLandmarker;
+      try {
+        landmarker = await HandLandmarker.createFromOptions(vision, {
+          baseOptions: { modelAssetPath: MODEL_URL, delegate: "GPU" },
+          runningMode: "VIDEO",
+          numHands: 1,
+        });
+      } catch (gpuError) {
+        console.warn("GPU hand tracking unavailable; retrying with CPU.", gpuError);
+        landmarker = await HandLandmarker.createFromOptions(vision, {
+          baseOptions: { modelAssetPath: MODEL_URL, delegate: "CPU" },
+          runningMode: "VIDEO",
+          numHands: 1,
+        });
+      }
+
+      step = "starting the audio engine";
+      const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      if (!AudioContextClass) throw new Error("This browser does not support the Web Audio API.");
+      context = new AudioContextClass();
+      if (!context.audioWorklet) throw new Error("This browser does not support AudioWorklet.");
       await context.audioWorklet.addModule("/vocoder-processor.js");
       const source = context.createMediaStreamSource(stream);
       const worklet = new AudioWorkletNode(context, "palm-vocoder-processor", {
@@ -223,6 +249,8 @@ export default function App() {
       analyser.smoothingTimeConstant = 0.82;
       source.connect(worklet).connect(analyser).connect(context.destination);
       await context.resume();
+
+      step = "starting the camera preview";
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         await videoRef.current.play();
@@ -237,9 +265,16 @@ export default function App() {
       frameRef.current = requestAnimationFrame(detectionLoop);
       waveformFrameRef.current = requestAnimationFrame(waveformLoop);
     } catch (startError) {
-      console.error(startError);
+      console.error(`Vocoder startup failed while ${step}.`, startError);
+      stream?.getTracks().forEach((track) => track.stop());
+      if (context && context.state !== "closed") await context.close();
+      const message = startError instanceof DOMException
+        ? `${startError.name}: ${startError.message || "the browser rejected the request"}`
+        : startError instanceof Error
+          ? startError.message
+          : String(startError);
       setMode("error");
-      setError("Camera or microphone access was blocked. Try again, then allow both permissions.");
+      setError(`Startup failed while ${step}: ${message}`);
     }
   }, [detectionLoop, drive, mix, mode, waveformLoop]);
 
